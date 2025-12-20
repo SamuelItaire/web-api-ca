@@ -17,6 +17,10 @@ import ActorPage from "./pages/actorPage";
 import { ThemeProvider } from '@mui/material/styles'; 
 import CssBaseline from '@mui/material/CssBaseline'; 
 import theme from './theme'; 
+import AuthContextProvider from "./contexts/authContext";
+import LoginPage from "./pages/loginPage";
+
+
 
 
 
@@ -51,6 +55,7 @@ const App = () => {
             <Route path="*" element={ <Navigate to="/" /> } />
             <Route path="/reviews/form" element={ <AddMovieReviewPage /> } />
             <Route path="/actor/:id" element={<ActorPage />} />
+            <Route path="/login" element={<LoginPage />} />
 
           </Routes>
         </MoviesContextProvider>
@@ -63,5 +68,10 @@ const App = () => {
 
 
 
-const rootElement = createRoot( document.getElementById("root") )
-rootElement.render(<App />);
+const root = createRoot(document.getElementById("root"));
+
+root.render(
+  <AuthContextProvider>
+    <App />
+  </AuthContextProvider>
+);

@@ -1,18 +1,25 @@
 export const getMovies = () => {
   return fetch(
-    `http://localhost:8080/api/movies/discover`
-  ).then((response) => {
-    if (!response.ok) {
-      return response.json().then((error) => {
-        throw new Error(error.status_message || "Something went wrong");
-      });
+    "http://localhost:8080/api/movies/discover",
+    {
+      headers: {
+        Authorization: localStorage.getItem("token"),
+      },
     }
-    return response.json();
-  })
-  .catch((error) => {
-      throw error
-  });
+  )
+    .then((response) => {
+      if (!response.ok) {
+        return response.json().then((error) => {
+          throw new Error(error.message || "Something went wrong");
+        });
+      }
+      return response.json();
+    })
+    .catch((error) => {
+      throw error;
+    });
 };
+
 
 
 export const getMovie = (args) => {
