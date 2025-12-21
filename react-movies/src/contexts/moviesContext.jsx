@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 
+
+
+
 export const MoviesContext = React.createContext(null);
 
 const MoviesContextProvider = (props) => {
@@ -7,19 +10,48 @@ const MoviesContextProvider = (props) => {
   const [myReviews, setMyReviews] = useState( {} ) 
 const [mustWatch, setMustWatch] = useState( [] );
 
-  const addToFavorites = (movie) => {
-    let newFavorites = [];
-    if (!favorites.includes(movie.id)){
-      newFavorites = [...favorites, movie.id];
-    }
-    else{
-      newFavorites = [...favorites];
-    }
-    setFavorites(newFavorites)
-  };
 
 
-  // We will use this function in the next step
+const addToFavorites = async (movie) => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    console.error("No token found");
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:8080/api/favourites", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+
+      },
+      body: JSON.stringify({
+        movieId: movie.id,
+        title: movie.title,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to add favourite");
+    }
+
+    console.log("Favourite saved to MongoDB");
+
+    
+  
+  } catch (err) {
+    console.error("Failed to add favourite", err);
+  }
+};
+
+
+
+
+
+
   const removeFromFavorites = (movie) => {
     setFavorites( favorites.filter(
       (mId) => mId !== movie.id

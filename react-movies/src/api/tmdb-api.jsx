@@ -160,3 +160,35 @@ export const getMovieCredits = ({ queryKey }) => {
     throw error
   });
 };
+export const getFavourites = (token) => {
+  return fetch("http://localhost:8080/api/favourites", {
+  headers: {
+  Authorization: token
+}
+
+  }).then((res) => {
+    if (!res.ok) {
+      throw new Error("Failed to fetch favourites");
+    }
+    return res.json();
+  });
+};
+
+export const addFavourite = (movie, token) => {
+  return fetch("http://localhost:8080/api/favourites", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      movieId: movie.id,
+      title: movie.title,
+    }),
+  }).then((res) => {
+    if (!res.ok) {
+      throw new Error("Failed to add favourite");
+    }
+    return res.json();
+  });
+};

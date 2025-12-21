@@ -1,28 +1,36 @@
 import jwt from 'jsonwebtoken';
 import User from '../api/users/userModel';
 
-const authenticate = async (request, response, next) => {
-    try { 
-        const authHeader = request.headers.authorization;
-        if (!authHeader) throw new Error('No authorization header');
+const authenticate = async (req, res, next) => {
+  try {
+    console.log("AUTH MIDDLEWARE HIT");
 
-        const token = authHeader.split(" ")[1];
-        if (!token) throw new Error('Bearer token not found');
+    const authHeader = req.headers.authorization;
+    console.log("AUTH HEADER:", authHeader);
 
-        const decoded = await jwt.verify(token, process.env.SECRET); 
-        console.log(decoded);
-
-        // Assuming decoded contains a username field
-        const user = await User.findByUserName(decoded.username); 
-        if (!user) {
-            throw new Error('User not found');
-        }
-        // Optionally attach the user to the request for further use
-        request.user = user; 
-        next();
-    } catch(err) {
-        next(new Error(`Verification Failed: ${err.message}`));
+    if (!authHeader) {
+      throw new Error("No authorization header");
     }
+
+    const token = authHeader.split(" ")[1];
+    console.log("TOKEN:", token);
+
+    const decoded = jwt.verify(token, process.env.SECRET);
+    console.log("DECODED:", decoded);
+
+    const user = await User.findByUserName(decoded.username);
+    console.log("USER:", user);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    req.user = user;
+    next();
+  } catch (err) {
+    console.error("AUTH ERROR:", err.message);
+    res.status(401).json({ message: err.message });
+  }
 };
 
 export default authenticate;

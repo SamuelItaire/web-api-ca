@@ -11,10 +11,16 @@ import { useNavigate } from "react-router";
 import { styled } from '@mui/material/styles';
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { useContext } from "react";
+import { AuthContext } from "../../contexts/authContext";
+
+
 
 const Offset = styled('div')(({ theme }) => theme.mixins.toolbar);
 
 const SiteHeader = () => {
+  const { isAuthenticated, userName, logout } = useContext(AuthContext);
+
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -99,6 +105,18 @@ const SiteHeader = () => {
                 ))}
               </>
             )}
+            {isAuthenticated && (
+  <>
+    <Typography variant="body1" sx={{ mr: 2 }}>
+      Logged in as <strong>{userName}</strong>
+    </Typography>
+
+    <Button color="inherit" onClick={logout}>
+      Logout
+    </Button>
+  </>
+)}
+
         </Toolbar>
       </AppBar>
       <Offset />

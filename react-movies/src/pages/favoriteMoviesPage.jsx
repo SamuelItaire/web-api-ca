@@ -1,55 +1,58 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import PageTemplate from "../components/templateMovieListPage";
-import { MoviesContext } from "../contexts/moviesContext";
-import { useQueries } from "@tanstack/react-query";
-import { getMovie } from "../api/tmdb-api";
-import Spinner from '../components/spinner'
-import RemoveFromFavorites from "../components/cardIcons/removeFromFavorites";
-import WriteReview from "../components/cardIcons/writeReview";
+import Spinner from "../components/spinner";
+import { getFavourites } from "../api/tmdb-api";
 
+import { AuthContext } from "../contexts/authContext";
 
 const FavoriteMoviesPage = () => {
-  const {favorites: movieIds } = useContext(MoviesContext);
+  const { token } = useContext(AuthContext);
+  const [favourites, setFavourites] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Create an array of queries and run in parallel.
-  const favoriteMovieQueries = useQueries({
-    queries: movieIds.map((movieId) => {
-      return {
-        queryKey: ['movie', { id: movieId }],
-        queryFn: getMovie,
+  useEffect(() => {
+  if (!token) {
+  setFavourites([]);
+  setLoading(false);
+  return;
+}
+
+    const loadFavourites = async () => {
+      try {
+  const data = await getFavourites(token);
+
+
+const mappedMovies = data.map((fav) => ({
+  id: fav.movieId,
+  title: fav.title,
+  poster_path: null,
+  release_date: "N/A",
+  vote_average: "N/A",
+}));
+
+setFavourites(mappedMovies);
+
+        setLoading(false);
+      } catch (err) {
+        console.error("Failed to load favourites", err);
+        setLoading(false);
       }
-    })
-  });
-  
-  // Check if any of the parallel queries is still loading.
-  const isPending = favoriteMovieQueries.find((m) => m.isPending === true);
+    };
 
-  if (isPending) {
+    loadFavourites();
+  }, [token]);
+
+  if (loading) {
     return <Spinner />;
   }
 
-  const movies = favoriteMovieQueries.map((q) => {
-    q.data.genre_ids = q.data.genres.map(g => g.id)
-    return q.data
-  });
-
-  const toDo = () => true;
-
-   return (
+  return (
     <PageTemplate
-      title="Favorite Movies"
-      movies={movies}
-      action={(movie) => {
-        return (
-          <>
-            <RemoveFromFavorites movie={movie} />
-            <WriteReview movie={movie} />
-          </>
-        );
-      }}
+      title="My Favourite Movies (MongoDB)"
+      movies={favourites}
+      action={() => null}
     />
   );
-
 };
 
 export default FavoriteMoviesPage;

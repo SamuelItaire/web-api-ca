@@ -17,13 +17,24 @@ router.get(
 router.post(
   '/',
   asyncHandler(async (req, res) => {
+    console.log("REQ.USER:", req.user);
+    console.log("REQ.BODY:", req.body);
+
+    if (!req.user) {
+      return res.status(401).json({ message: "No user on request" });
+    }
+
     const favourite = await Favourite.create({
-      ...req.body,
-      userId: req.user._id
+      movieId: req.body.movieId,
+      title: req.body.title,
+      userId: req.user._id,
     });
+
     res.status(201).json(favourite);
   })
 );
+
+
 
 // DELETE a favourite
 router.delete(
